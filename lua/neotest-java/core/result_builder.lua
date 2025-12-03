@@ -59,7 +59,8 @@ end
 
 local function load_all_testcases(reports_dir, scan, read_file)
 	local paths = scan(reports_dir, { search_pattern = REPORT_FILE_NAMES_PATTERN })
-	log.debug("Found report files: ", paths)
+	local abs_path = vim.fn.fnamemodify(reports_dir, ":p")
+	log.debug("Found report files in ", abs_path, ": ", paths)
 	assert(#paths ~= 0, "no report file could be generated")
 
 	return flat_map(function(filepath)

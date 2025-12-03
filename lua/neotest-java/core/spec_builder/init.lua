@@ -43,11 +43,6 @@ function SpecBuilder.build_spec(args, project_type, config)
 	vim.uv.fs_mkdir(output_dir_parent, 493)
 	vim.uv.fs_mkdir(output_dir, 493)
 
-	-- JUNIT REPORT DIRECTORY
-	local reports_dir =
-		compatible_path(string.format("%s/junit-reports/%s", output_dir, nio.fn.strftime("%d%m%y%H%M%S")))
-	command:reports_dir(compatible_path(reports_dir))
-
 	local module_dirs = vim.iter(modules)
 		:map(function(mod)
 			return mod.base_dir
@@ -55,6 +50,11 @@ function SpecBuilder.build_spec(args, project_type, config)
 		:totable()
 	local base_dir = assert(find_module_by_filepath(module_dirs, position.path), "module base_dir not found")
 	command:basedir(base_dir)
+
+	-- JUNIT REPORT DIRECTORY
+	local reports_dir =
+		compatible_path(string.format("%s/%s/junit-reports/%s", base_dir, output_dir, nio.fn.strftime("%d%m%y%H%M%S")))
+	command:reports_dir(compatible_path(reports_dir))
 
 	command:spring_property_filepaths(build_tool.get_spring_property_filepaths(module_dirs))
 
