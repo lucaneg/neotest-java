@@ -82,7 +82,7 @@ function SpecBuilder.build_spec(args, project_type, config)
 		-- PREPARE DEBUG TEST COMMAND
 		local junit = command:build_junit(port)
 		logger.debug("junit debug command: ", junit.command, " ", table.concat(junit.args, " "))
-		local terminated_command_event = build_tools.launch_debug_test(junit.command, junit.args)
+		local terminated_command_event = build_tools.launch_debug_test(junit.command, junit.args, base_dir)
 
 		local project_name = vim.fn.fnamemodify(root, ":t")
 		return {
@@ -94,7 +94,7 @@ function SpecBuilder.build_spec(args, project_type, config)
 				port = port,
 				projectName = project_name,
 			},
-			cwd = root,
+			cwd = base_dir,
 			symbol = position.type == "test" and position.name or nil,
 			context = {
 				strategy = args.strategy,
@@ -108,7 +108,7 @@ function SpecBuilder.build_spec(args, project_type, config)
 	logger.info("junit command: ", command:build_to_string())
 	return {
 		command = command:build_to_string(),
-		cwd = root,
+		cwd = base_dir,
 		symbol = position.name,
 		context = { reports_dir = reports_dir },
 	}

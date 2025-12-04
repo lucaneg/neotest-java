@@ -26,24 +26,38 @@ end
 ---@param command string
 ---@param args string[]
 ---@return nio.control.Event
-build_tools.launch_debug_test = function(command, args)
+build_tools.launch_debug_test = function(command, args, cwd)
 	lib.notify("Running debug test", vim.log.levels.INFO)
 	log.trace("run_debug_test function")
 
 	local test_command_started_listening = nio.control.event()
 	local terminated_command_event = nio.control.event()
-
+	local repl = require("dap.repl")
 	local stderr = {}
+
 	local job = Job:new({
 		command = command,
+		cwd = cwd,
 		args = args,
 		on_stderr = function(_, data)
+			if data == nil then
+				return
+			end
 			stderr[#stderr + 1] = data
+			vim.schedule(function()
+				repl.append(data)
+			end)
 		end,
 		on_stdout = function(_, data)
+			if data == nil then
+				return
+			end
 			if string.find(data, "Listening") then
 				test_command_started_listening.set()
 			end
+			vim.schedule(function()
+				repl.append(data)
+			end)
 		end,
 		on_exit = function(_, code)
 			terminated_command_event.set()
@@ -56,6 +70,7 @@ build_tools.launch_debug_test = function(command, args)
 		end,
 	})
 	log.debug("starting job with command: ", command, " ", table.concat(args, " "))
+	repl.clear()
 	job:start()
 	test_command_started_listening.wait()
 
