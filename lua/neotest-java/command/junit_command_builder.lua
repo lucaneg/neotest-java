@@ -127,6 +127,7 @@ local CommandBuilder = {
 				"--disable-banner",
 				"--details=testfeed",
 				"--config=junit.platform.output.capture.stdout=true",
+				"--config=junit.platform.output.capture.stderr=true",
 			},
 		}
 		-- add selectors
