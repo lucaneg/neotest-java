@@ -1,4 +1,5 @@
 local nio = require("nio")
+local logger = require("neotest-java.logger")
 
 local FAILED = require("neotest.types").ResultStatus.failed
 local PASSED = require("neotest.types").ResultStatus.passed
@@ -89,12 +90,21 @@ function JunitResult:status()
 	if failed and not failed._attr then
 		local failures = {}
 		for i, fail in ipairs(failed) do
-			failures[i] = { failure_message = fail._attr.message, failure_output = fail[1] }
+			failures[i] = {
+				failure_message = fail._attr.message or fail._attr.type or "<unknown failure>",
+				failure_output = fail[1],
+			}
+			logger.warn("Test failure: ", failures[i])
 		end
 		return FAILED, failures
 	end
 	if failed and failed._attr then
-		return FAILED, { { failure_message = failed._attr.message, failure_output = failed[1] } }
+		local fail = {
+			failure_message = failed._attr.message or failed._attr.type or "<unknown failure>",
+			failure_output = failed[1],
+		}
+		logger.warn("Test failure: ", fail)
+		return FAILED, { fail }
 	end
 	return PASSED
 end
